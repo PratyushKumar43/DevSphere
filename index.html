@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MovieFlix - Stream Your Favorite Movies</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: #0f0f0f;
+            color: white;
+        }
+
+        .navbar {
+            background-color: #1a1a1a;
+            padding: 1rem 5%;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #e50914;
+        }
+
+        .search-bar {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            border: none;
+            background-color: #333;
+            color: white;
+            width: 300px;
+        }
+
+        .main-content {
+            margin-top: 80px;
+            padding: 2rem 5%;
+        }
+
+        .movie-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 2rem;
+            padding: 1rem 0;
+        }
+
+        .movie-card {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+
+        .movie-card:hover {
+            transform: scale(1.05);
+        }
+
+        .movie-card img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+        }
+
+        .movie-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1rem;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.9));
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .movie-card:hover .movie-info {
+            transform: translateY(0);
+        }
+
+        .movie-title {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .movie-rating {
+            color: #ffd700;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .movie-card {
+            animation: fadeIn 0.5s ease forwards;
+            opacity: 0;
+        }
+
+        .categories {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            overflow-x: auto;
+            padding-bottom: 1rem;
+        }
+
+        .category-btn {
+            padding: 0.5rem 1.5rem;
+            background-color: #333;
+            border: none;
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .category-btn:hover {
+            background-color: #e50914;
+        }
+
+        .featured-section {
+            margin-bottom: 3rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #e50914;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">MovieFlix</div>
+        <input type="text" class="search-bar" placeholder="Search movies...">
+    </nav>
+
+    <main class="main-content">
+        <div class="categories">
+            <button class="category-btn">All</button>
+            <button class="category-btn">Action</button>
+            <button class="category-btn">Drama</button>
+            <button class="category-btn">Comedy</button>
+            <button class="category-btn">Thriller</button>
+            <button class="category-btn">Horror</button>
+        </div>
+
+        <section class="featured-section">
+            <h2 class="section-title">Featured Movies</h2>
+            <div class="movie-grid" id="movieGrid">
+                <!-- Movies will be added here dynamically -->
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Movie data
+        const movies = [
+            { title: 'Tenet', image: 'images/tenet-poster-hdhub4u.jpeg', rating: '8.5' },
+            { title: 'V', image: 'images/v-movie-poster-hdhub4u.jpeg', rating: '7.9' },
+            { title: 'Sarkar', image: 'images/Sarkar-2018-Hindi-Dubbed-HDRip-Full-Movie-HDHub4u.Tv.jpg', rating: '8.1' },
+            { title: 'CID', image: 'images/CID-2024-S02-HDHub4u.Tv.jpg', rating: '7.8' },
+            { title: 'The Family Man', image: 'images/the-family-man-poster-hdhub4u.jpeg', rating: '8.7' },
+            { title: 'Scam 1992', image: 'images/scam1992_portrait_thumb_gen.jpeg', rating: '9.2' },
+            { title: 'Mirzapur', image: 'images/mirzapur2.jpeg', rating: '8.9' },
+            { title: 'Hostages', image: 'images/hostages.s02.poster.jpeg', rating: '7.6' },
+            { title: 'Arcane', image: 'images/srQbJhLRKoAwRrNN5ga7webPHbC.jpg', rating: '9.0' },
+            { title: 'Skeleton Crew', image: 'images/8PrUUfvHk2CHEMHATgY7EZ2qg18.jpg', rating: '8.3' },
+            { title: 'Baby John', image: 'images/Baby-John-2024-Hindi-HDTS-Full-Movie.jpg', rating: '7.5' },
+            { title: 'Bandidos', image: 'images/Bandidos-2025-S02-HDHub4u.Tv.jpg', rating: '8.2' },
+            { title: 'What If', image: 'images/What-iF-S03-Hindi-Dubbed-HDRip-ALL-Episodes-HDHub4u.Tv.jpg', rating: '8.4' },
+            { title: 'Vanvaas', image: 'images/Vanvaas-2024-HDHub4u.Tv.jpg', rating: '7.7' },
+            { title: 'Breakthrough', image: 'images/tS0ToTdyt7Dd7WqggJogHDzR8H7.jpg', rating: '8.0' },
+            { title: 'Dark', image: 'images/DM8A8OHA77iN15QRBFTzFOtJeEE.jpg', rating: '9.1' },
+            { title: 'MCU Collection', image: 'images/mcu.p-i-ii-iii.jpeg', rating: '8.8' },
+            { title: 'Gandi Baat', image: 'images/gandi-baat-s05-poster-hdhub4u.link_.jpeg', rating: '7.4' },
+            { title: 'Rangasthalam', image: 'images/rTmal9fDbwh5F0waol2hq35U4ah.jpg', rating: '8.6' },
+            { title: 'Thangalaan', image: 'images/o8KxvfdpSVCP53d4S6a4DPHOqNh.jpg', rating: '8.2' }
+        ];
+
+        // Function to create movie cards
+        function createMovieCard(movie) {
+            return `
+                <div class="movie-card" style="animation-delay: ${Math.random() * 0.5}s">
+                    <img src="${movie.image}" alt="${movie.title}">
+                    <div class="movie-info">
+                        <h3 class="movie-title">${movie.title}</h3>
+                        <div class="movie-rating">★ ${movie.rating}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Populate movie grid
+        const movieGrid = document.getElementById('movieGrid');
+        movies.forEach(movie => {
+            movieGrid.innerHTML += createMovieCard(movie);
+        });
+
+        // Search functionality
+        const searchBar = document.querySelector('.search-bar');
+        searchBar.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const filteredMovies = movies.filter(movie => 
+                movie.title.toLowerCase().includes(searchTerm)
+            );
+            
+            movieGrid.innerHTML = '';
+            filteredMovies.forEach(movie => {
+                movieGrid.innerHTML += createMovieCard(movie);
+            });
+        });
+
+        // Category buttons
+        const categoryButtons = document.querySelectorAll('.category-btn');
+        categoryButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                categoryButtons.forEach(btn => btn.style.backgroundColor = '#333');
+                button.style.backgroundColor = '#e50914';
+            });
+        });
+    </script>
+</body>
+</html>
